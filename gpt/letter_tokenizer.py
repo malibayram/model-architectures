@@ -1,18 +1,18 @@
-harfler = ['a', 'b', 'c', 'ç', 'd', 'e', 'f', 'g', 'ğ', 'h', 'ı', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'ö', 'p', 'r', 's', 'ş', 't', 'u', 'ü', 'v', 'y', 'z', 
+letters = ['a', 'b', 'c', 'ç', 'd', 'e', 'f', 'g', 'ğ', 'h', 'ı', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'ö', 'p', 'r', 's', 'ş', 't', 'u', 'ü', 'v', 'y', 'z', 
                ' ', '.', ',']
 
 def encoder(harf):
     harf = harf.lower()
-    if harf in harfler:
-        return harfler.index(harf)
+    if harf in letters:
+        return letters.index(harf)
     else:
         return -1
     
 def decoder(sayi):
-    if sayi < 0 or sayi >= len(harfler):
+    if sayi < 0 or sayi >= len(letters):
         return ""
     else:
-        return harfler[sayi]
+        return letters[sayi]
     
 
 def tokenize(text):

@@ -13,6 +13,7 @@ class CausalSelfAttention(nn.Module):
         self.Wv = nn.Parameter(torch.randn(config.n_embd, config.n_embd)).to(device) # Value weights - will transform input embeddings into values
 
     def forward(self, x):
+        # print("x: ", x)
         seq_len = x.shape[1] # Get sequence length (number of tokens / context window length)
         queries = x @ self.Wq # Matrix multiplication to transform input embeddings into queries
         keys = x @ self.Wk    # Matrix multiplication to transform input embeddings into keys
@@ -29,4 +30,5 @@ class CausalSelfAttention(nn.Module):
 
         qkt_softmax = F.softmax(qkt_scaled, dim=-1) # Apply softmax row-wise to get attention weights, the -inf values will become 0 here
         attn_output = qkt_softmax @ values # Multiply softmax(QK^T) by values
+        #print("attn_output: ", attn_output)
         return attn_output
