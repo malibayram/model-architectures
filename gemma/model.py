@@ -21,6 +21,7 @@ from typing import Any, List, Mapping, Optional, Sequence, Tuple, Union
 import torch
 import torch.nn.functional as F
 from config import Architecture, AttentionType, GemmaConfig
+from tokenizer import Tokenizer
 from torch import nn
 
 
@@ -80,7 +81,7 @@ class Sampler(nn.Module):
         probs = torch.gather(probs_sort,
                              dim=-1,
                              index=torch.argsort(probs_idx, dim=-1))
-
+        print("probs: ", probs.shape, probs)
         next_token_ids = torch.multinomial(probs,
                                            num_samples=1,
                                            replacement=True).squeeze(dim=-1)
@@ -102,6 +103,8 @@ def precompute_freqs_cis(dim: int,
 
 def apply_rotary_emb(x: torch.Tensor, freqs_cis: torch.Tensor) -> torch.Tensor:
     """Applies the rotary embedding to the query and key tensors."""
+    print("x: ", x.shape)
+    print("freqs_cis: ", freqs_cis.shape)
     x_ = torch.view_as_complex(
         torch.stack(torch.chunk(x.transpose(1, 2).float(), 2, dim=-1),
                     dim=-1))
@@ -519,7 +522,7 @@ class GemmaForCausalLM(nn.Module):
     head_dim = config.head_dim
     vocab_size = config.vocab_size
 
-    self.tokenizer = tokenizer.Tokenizer(config.tokenizer)
+    self.tokenizer: Tokenizer = config.tokenizer
     self.embedder = Embedding(vocab_size, config.hidden_size, config.quant)
     self.model = GemmaModel(config)
     self.sampler = Sampler(vocab_size, config)
@@ -531,13 +534,13 @@ class GemmaForCausalLM(nn.Module):
 
       rope_lengths = config.rope_wave_length
       defaults = {
-                gemma_config.AttentionType.LOCAL_SLIDING: 10_000,
-                gemma_config.AttentionType.GLOBAL: 10_000,
+                AttentionType.LOCAL_SLIDING: 10_000,
+                AttentionType.GLOBAL: 10_000,
             }
 
       for attn_type, name in [
-                (gemma_config.AttentionType.LOCAL_SLIDING, 'local_freqs_cis'),
-                (gemma_config.AttentionType.GLOBAL, 'global_freqs_cis'),
+                (AttentionType.LOCAL_SLIDING, 'local_freqs_cis'),
+                (AttentionType.GLOBAL, 'global_freqs_cis'),
             ]:
         theta = rope_lengths.get(
                     attn_type, defaults[attn_type]
@@ -571,18 +574,18 @@ class GemmaForCausalLM(nn.Module):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
     freqs_cis = {}
 
-    if self.config.architecture == gemma_config.Architecture.GEMMA_3:
-      freqs_cis[gemma_config.AttentionType.LOCAL_SLIDING] = (
+    if self.config.architecture == Architecture.GEMMA_3:
+      freqs_cis[AttentionType.LOCAL_SLIDING] = (
                 self.local_freqs_cis.index_select(0, input_positions)
             )
-      freqs_cis[gemma_config.AttentionType.GLOBAL] = (
+      freqs_cis[AttentionType.GLOBAL] = (
                 self.global_freqs_cis.index_select(0, input_positions)
             )
     else:
-      freqs_cis[gemma_config.AttentionType.LOCAL_SLIDING] = (
+      freqs_cis[AttentionType.LOCAL_SLIDING] = (
                 self.freqs_cis.index_select(0, input_positions)
             )
-      freqs_cis[gemma_config.AttentionType.GLOBAL] = (
+      freqs_cis[AttentionType.GLOBAL] = (
                 self.freqs_cis.index_select(0, input_positions)
             )
 

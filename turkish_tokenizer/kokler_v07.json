@@ -4,7 +4,7 @@
   "<newline>": 2,
   "<tab>": 3,
   "<unknown>": 4,
-  "special_5": 5,
+  "<pad>": 5,
   "special_6": 6,
   "special_7": 7,
   "special_8": 8,

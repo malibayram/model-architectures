@@ -47,8 +47,11 @@ SPECIAL_TOKENS = {
     "<newline>": 2,
     "<tab>": 3,
     "<unknown>": 4,
-    "<uppercase>": 0
+    "<uppercase>": 0,
+    "<pad>": 5
 }
+
+vocab_size = len(tokens_dict)
 
 # Tokenize the input text
 def tokenize(text: str) -> Dict[str, List]:

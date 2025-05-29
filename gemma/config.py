@@ -21,6 +21,7 @@ from typing import Optional, Sequence
 
 import torch
 from siglip_vision import config as siglip_vision_config
+from tokenizer import Tokenizer
 
 # Keep a mapping from dtype strings to the supported torch dtypes.
 _STR_DTYPE_TO_TORCH_DTYPE = dict({
@@ -69,9 +70,7 @@ class GemmaConfig:
     # Whether a quantized version of the model is used.
     quant: bool = False
     # The path to the model tokenizer.
-    tokenizer: Optional[str] = (
-    'tokenizer/tokenizer.model'
-    )
+    tokenizer: Tokenizer = Tokenizer()
     # The types of attention used in the layers of the model.
     attn_types: Optional[Sequence[AttentionType]] = None
     # The size of the sliding window used for local attention.
